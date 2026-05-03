@@ -11,4 +11,19 @@ const validatesignupdata = (req) => {
     throw new Error("Password Is Inavlid");
   }
 };
-module.exports = { validatesignupdata };
+
+const validateprofileedit = (req) => {
+  const Useralllowedfield = [
+    "firstName",
+    "lastName",
+    "age",
+    "about",
+    "skills",
+    "gender",
+  ];
+  const UserAllow = Object.keys(req.body).every((field) =>
+    Useralllowedfield.includes(field),
+  );
+  return UserAllow;
+};
+module.exports = { validatesignupdata, validateprofileedit };
