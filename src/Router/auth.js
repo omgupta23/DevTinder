@@ -69,8 +69,10 @@ authrouter.post("/login", async (req, res) => {
 
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
       });
-
       res.send(user);
     } else {
       return res.status(401).json({
