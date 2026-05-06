@@ -16,7 +16,7 @@ const userrooter = require("./Router/user");
 const cors = require("cors");
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://dev-connect-ui-6gyv.vercel.app"],
+    origin: ["http://localhost:5173", "https://dev-connect-ui-c6zq.vercel.app"],
     credentials: true,
   }),
 );
