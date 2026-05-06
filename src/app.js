@@ -14,12 +14,29 @@ const profilerouter = require("./Router/profile");
 const requestrooter = require("./Router/request");
 const userrooter = require("./Router/user");
 const cors = require("cors");
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://dev-connect-ui-c6zq.vercel.app",
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://dev-connect-ui-c6zq.vercel.app"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+app.options(/.*/, cors());
+
 app.use("/", authrouter);
 app.use("/", profilerouter);
 app.use("/", requestrooter);
