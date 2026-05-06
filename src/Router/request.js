@@ -53,7 +53,6 @@ requestrooter.post(
           touser.firstName,
       });
     } catch (err) {
-      console.log("ERROR:", err);
       return res.status(400).json({ error: err.message });
     }
   },
@@ -93,4 +92,5 @@ requestrooter.post(
     }
   },
 );
+
 module.exports = requestrooter;

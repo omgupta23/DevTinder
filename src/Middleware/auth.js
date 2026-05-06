@@ -1,24 +1,37 @@
 const cookieparser = require("cookie-parser");
 const User = require("../model/user");
 const jwt = require("jsonwebtoken");
+
 const Authanticate = async (req, res, next) => {
   try {
     const { token } = req.cookies;
+
     if (!token) {
-      throw new Error("Token Not Valid");
+      return res.status(401).json({
+        message: "Please login first",
+      });
     }
-    const Decodedata = await jwt.verify(token, "DevTinder@123");
-    const { _id } = Decodedata;
+
+    const decodedData = jwt.verify(token, "DevTinder@123");
+    const { _id } = decodedData;
+
     const user = await User.findById(_id);
+
     if (!user) {
-      throw new Error("User Not Find");
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
+
     req.user = user;
     next();
   } catch (err) {
-    res.status(400).send("Error" + err.message);
+    return res.status(401).json({
+      message: "Invalid or expired token",
+    });
   }
 };
+
 module.exports = {
   Authanticate,
 };

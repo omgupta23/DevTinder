@@ -41,7 +41,7 @@ userrouter.get("/user/connection", Authanticate, async (req, res) => {
     });
     res.json({ data: data });
   } catch (err) {
-    res.status(400).send("Error:", +err.message);
+    res.status(400).send("Error: " + err.message);
   }
 });
 

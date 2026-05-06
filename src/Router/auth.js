@@ -5,29 +5,48 @@ const { validatesignupdata } = require("../utils/validate");
 const User = require("../model/user");
 const cookieparser = require("cookie-parser");
 const { toDate } = require("validator");
+const upload = require("../Middleware/upload");
+const cloudinary = require("../config/cloudinary");
 
-authrouter.post("/signup", async (req, res) => {
+authrouter.post("/signup", upload.single("photo"), async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password, skills } = req.body;
-    //validate the signup credential
-    validatesignupdata(req);
-    //password encrypt form mai convert kareage
+    let photoUrl = "";
 
+    // Upload image to Cloudinary
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+
+      photoUrl = result.secure_url;
+    }
+
+    // Parse skills
+    const skills = req.body.skills ? JSON.parse(req.body.skills) : [];
+
+    const { firstName, lastName, emailId, password, age, gender } = req.body;
+
+    // Validate
+    validatesignupdata(req);
+
+    // Hash password
     const passwordhash = await bcrypt.hash(password, 10);
 
-    //new insatnce create kiya hai database mai
+    // Create user
     const user = new User({
       firstName,
       lastName,
       emailId,
       password: passwordhash,
       skills,
+      age,
+      gender,
+      photoUrl,
     });
 
     await user.save();
-    res.send("SignUp Succesfully");
+
+    res.send("Signup Successfully");
   } catch (err) {
-    res.status(400).send("ERROR" + err.message);
+    res.status(400).send("ERROR " + err.message);
   }
 });
 
@@ -38,7 +57,9 @@ authrouter.post("/login", async (req, res) => {
     const user = await User.findOne({ emailId: emailId });
 
     if (!user) {
-      throw new Error("Invalid Details");
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
     }
 
     const isPasswordValid = await user.comparepassword(password);
@@ -50,12 +71,17 @@ authrouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 8 * 3600000),
       });
 
-      res.send("Login Succesfully");
+      res.send(user);
     } else {
-      throw new Error("Password is Not correct");
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
     }
   } catch (err) {
-    res.status(400).send("ERROR" + err.message);
+    console.error(err);
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 });
 
